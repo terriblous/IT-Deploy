@@ -7,7 +7,7 @@ echo [+] Emplacement : %~dp0
 echo.
 
 :: Lancement de PowerShell avec NoExit et Bypass
-powershell.exe -NoExit -ExecutionPolicy Bypass -File "shell.ps1"
+powershell.exe -NoExit -ExecutionPolicy Bypass -File "It-Deploy.ps1"
 
 echo.
 echo [+] Le processus batch est arrive a la fin de la commande powershell.
